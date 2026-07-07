@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<title>Etiketka chop etish dasturi</title>
+<style>
+  :root{
+    --accent:#2b6cb0;
+    --bg:#f4f6f8;
+    --panel:#ffffff;
+    --border:#dbe2ea;
+    --text:#1a202c;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin:0;
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    display:flex;
+    min-height:100vh;
+  }
+  .panel {
+    width: 400px;
+    min-width: 340px;
+    background: var(--panel);
+    padding: 20px;
+    border-right: 1px solid var(--border);
+    overflow-y:auto;
+    height:100vh;
+  }
+  .panel h1 {
+    font-size: 18px;
+    margin: 0 0 4px 0;
+  }
+  .panel p.sub {
+    font-size: 12px;
+    color:#718096;
+    margin: 0 0 18px 0;
+  }
+  .field { margin-bottom: 14px; }
+  .field label {
+    display:block;
+    font-size:12.5px;
+    font-weight:600;
+    margin-bottom:4px;
+    color:#2d3748;
+  }
+  .row { display:flex; gap:10px; }
+  .row .field { flex:1; }
+  input[type=text], input[type=number], textarea, select {
+    width:100%;
+    padding:8px 9px;
+    border:1px solid var(--border);
+    border-radius:6px;
+    font-size:13px;
+    font-family:inherit;
+    background:#fbfcfd;
+  }
+  textarea { resize:vertical; line-height:1.35; }
+  textarea:focus, input:focus, select:focus { outline:2px solid #90cdf4; border-color:var(--accent); }
+  .checkbox-row { display:flex; align-items:center; gap:8px; margin-bottom:14px; }
+  .checkbox-row input { width:auto; }
+  .checkbox-row label { font-size:12.5px; margin:0; font-weight:600; color:#2d3748; }
+  button.print-btn {
+    width:100%;
+    padding:12px;
+    background:var(--accent);
+    color:#fff;
+    border:none;
+    border-radius:8px;
+    font-size:15px;
+    font-weight:700;
+    cursor:pointer;
+    margin-top:6px;
+  }
+  button.print-btn:hover { background:#2c5282; }
+  .preset-btns { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:14px; }
+  .preset-btns button {
+    flex:1;
+    min-width:70px;
+    padding:6px 4px;
+    font-size:11.5px;
+    border:1px solid var(--border);
+    background:#f0f4f8;
+    border-radius:6px;
+    cursor:pointer;
+  }
+  .preset-btns button:hover { background:#e2e8f0; }
+  hr { border:none; border-top:1px solid var(--border); margin:16px 0; }
+
+  .preview-area {
+    flex:1;
+    padding: 30px;
+    overflow:auto;
+  }
+  .preview-area h2 { font-size:15px; margin:0 0 14px 0; color:#4a5568; }
+  #labelsWrap {
+    display:flex;
+    flex-wrap:wrap;
+    gap: 14px;
+  }
+  .label {
+    background:#fff;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+    overflow:hidden;
+    white-space:pre-wrap;
+    word-break:break-word;
+  }
+  .label .title {
+    font-weight:800;
+    display:block;
+  }
+  .label.bordered { border: 1px dashed #999; box-shadow:none; }
+
+  /* ===== PRINT ===== */
+  @media print {
+    body * { visibility:hidden; }
+    .panel, .preview-area h2 { display:none !important; }
+    #labelsWrap, #labelsWrap * { visibility:visible; }
+    #labelsWrap {
+      position:absolute; left:0; top:0; margin:0; padding:0; gap:0;
+      display:block;
+    }
+    .label {
+      box-shadow:none;
+      page-break-after: always;
+      break-after: page;
+      margin:0;
+      width: 100%;
+      height: 100%;
+    }
+    .label:last-child { page-break-after: auto; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="panel">
+    <h1>🏷️ Etiketka chop etish</h1>
+    <p class="sub">Matnni to'liq kiriting, o'lcham va nusxa sonini sozlang — Xprinter (yoki oddiy printer) uchun tayyor bo'ladi.</p>
+
+    <div class="field">
+      <label>Sarlavha (qalin, katta yoziladi)</label>
+      <input type="text" id="titleInput" value="АБРИКОС СВЕЖИЙ">
+    </div>
+
+    <div class="field">
+      <label>Asosiy matn (har qatorni Enter bilan ajrating)</label>
+      <textarea id="bodyInput" rows="12">Вес продукции: 5-50 кг. Дата упаковки: июнь 2026 г.  Срок годности: 90 дней
+Условия хранения:  хранить при t +2 +7 C
+Страна происхождения: Кыргызстан
+Экспортер: ОсОО "РМ и КО КЖ" Кыргызская Республика, г.Бишкек,
+Первомайский район, ул.Тюмень, д.27
+ИНН: 00509202510026
+Соответствует требованиям ТР/ТС 022/2011
+Импортер: ООО "МедАльянс"  Российская Федерация,
+Красноярский край, г.Красноярск, ул.Воронова, 12И, оф.
+ИНН: 2466181412</textarea>
+    </div>
+
+    <hr>
+
+    <label style="font-size:12.5px;font-weight:700;color:#2d3748;">Tayyor o'lchamlar (Xprinter):</label>
+    <div class="preset-btns">
+      <button type="button" onclick="setSize(58,40)">58×40</button>
+      <button type="button" onclick="setSize(60,40)">60×40</button>
+      <button type="button" onclick="setSize(40,30)">40×30</button>
+      <button type="button" onclick="setSize(100,50)">100×50</button>
+      <button type="button" onclick="setSize(80,50)">80×50</button>
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <label>Kenglik (mm)</label>
+        <input type="number" id="widthMM" value="60" min="10" max="300">
+      </div>
+      <div class="field">
+        <label>Balandlik (mm)</label>
+        <input type="number" id="heightMM" value="40" min="10" max="300">
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <label>Shrift o'lchami (pt)</label>
+        <input type="number" id="fontSize" value="7" min="4" max="20" step="0.5">
+      </div>
+      <div class="field">
+        <label>Ichki chegara (mm)</label>
+        <input type="number" id="paddingMM" value="1.5" min="0" max="10" step="0.5">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Nusxalar soni (nechta etiketka chop etilsin)</label>
+      <input type="number" id="copies" value="10" min="1" max="500">
+    </div>
+
+    <div class="checkbox-row">
+      <input type="checkbox" id="showBorder" checked onchange="render()">
+      <label for="showBorder">Ko'rish rejimida chegarani ko'rsatish (chop etishda chiqmaydi)</label>
+    </div>
+
+    <button class="print-btn" onclick="printLabels()">🖨️ Chop etish</button>
+  </div>
+
+  <div class="preview-area">
+    <h2>Ko'rinish (preview) — pastda chiqadigan etiketkalar</h2>
+    <div id="labelsWrap"></div>
+  </div>
+
+<script>
+function setSize(w,h){
+  document.getElementById('widthMM').value = w;
+  document.getElementById('heightMM').value = h;
+  render();
+}
+
+function escapeHTML(str){
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function render(){
+  const title = document.getElementById('titleInput').value;
+  const body = document.getElementById('bodyInput').value;
+  const w = parseFloat(document.getElementById('widthMM').value) || 60;
+  const h = parseFloat(document.getElementById('heightMM').value) || 40;
+  const fs = parseFloat(document.getElementById('fontSize').value) || 7;
+  const pad = parseFloat(document.getElementById('paddingMM').value) || 1.5;
+  const copies = Math.max(1, parseInt(document.getElementById('copies').value) || 1);
+  const bordered = document.getElementById('showBorder').checked;
+
+  // update @page size dynamically for printing
+  let pageStyle = document.getElementById('dynamicPageStyle');
+  if(!pageStyle){
+    pageStyle = document.createElement('style');
+    pageStyle.id = 'dynamicPageStyle';
+    document.head.appendChild(pageStyle);
+  }
+  pageStyle.innerHTML = `@page { size: ${w}mm ${h}mm; margin: 0; }`;
+
+  const wrap = document.getElementById('labelsWrap');
+  wrap.innerHTML = '';
+
+  const content = `<span class="title">${escapeHTML(title)}</span>${escapeHTML(body)}`;
+
+  for(let i=0;i<copies;i++){
+    const div = document.createElement('div');
+    div.className = 'label' + (bordered ? ' bordered' : '');
+    div.style.width = w + 'mm';
+    div.style.height = h + 'mm';
+    div.style.fontSize = fs + 'pt';
+    div.style.padding = pad + 'mm';
+    div.style.lineHeight = '1.25';
+    div.innerHTML = content;
+    wrap.appendChild(div);
+  }
+}
+
+function printLabels(){
+  render();
+  window.print();
+}
+
+// live update
+['titleInput','bodyInput','widthMM','heightMM','fontSize','paddingMM','copies'].forEach(id=>{
+  document.getElementById(id).addEventListener('input', render);
+});
+
+render();
+</script>
+</body>
+</html>
